@@ -1,0 +1,31 @@
+name: Run Ghost Inspector test suite
+
+on: 
+  workflow_call:
+    secrets:
+      SUITE_ID:
+        required: true
+        type: string
+      API_KEY:
+        required: true
+        type: string
+
+jobs:
+  ghost-inspector-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run test suite
+        run: |
+          curl "https://api.ghostinspector.com/v1/suites/${{ secrets.SUITE_ID }}/execute/?apiKey=${{ secrets.API_KEY }}" -m 1200
+      - name: Get suite result
+        shell: bash
+        run: |
+          response=$(curl "https://api.ghostinspector.com/v1/suites/${{ secrets.SUITE_ID }}/results/?apiKey=${{ secrets.API_KEY }}&count=1")
+          name=$(jq '.data[0].name' <<< $response )
+          result=$(jq '.data[0].passing' <<< $response)
+          if [[ $result == 'true' ]]; then
+            echo "Suite ${name} passing"
+            exit 0
+          fi
+          echo "Suite ${name} failing"
+          exit 1
