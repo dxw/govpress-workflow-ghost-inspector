@@ -5,10 +5,8 @@ on:
     secrets:
       SUITE_ID:
         required: true
-        type: string
       API_KEY:
         required: true
-        type: string
 
 jobs:
   ghost-inspector-run:
