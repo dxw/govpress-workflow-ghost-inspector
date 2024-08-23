@@ -20,12 +20,15 @@ jobs:
         run: |
           response=$(curl "https://api.ghostinspector.com/v1/suites/${{ secrets.SUITE_ID }}/results/?apiKey=${{ secrets.API_KEY }}&count=1")
           name=$(jq '.data[0].name' <<< $response )
-          result=$(jq '.data[0].passing' <<< $response)
+          testResult=$(jq '.data[0].passing' <<< $response)
+          screenshotResult=$(jq '.data[0].screenshotComparePassing' <<< $response)  # Can be null.
           failingCount=$(jq '.data[0].countFailing' <<< $response)
           passingCount=$(jq '.data[0].countPassing' <<< $response)
-          if [[ $result == 'true' ]]; then
-            echo "Suite ${name} passing: ${passingCount} passed, 0 failed"
+          failingScreenshotCount=$(jq '.data[0].countScreenshotCompareFailing' <<< $response)
+          passingScreenshotCount=$(jq '.data[0].countScreenshotComparePassing' <<< $response)
+          if [[ $testResult == 'true' ]] && [[ $screenshotResult == 'true' || $screenshotResult == 'null' ]]; then
+            echo "Suite ${name} passing: ${passingCount} tests passed, ${passingScreenshotCount} screenshot comparisons passed, 0 tests/screenshots failed"
             exit 0
           fi
-          echo "Suite ${name} failing: ${passingCount} passed, ${failingCount} failed"
+          echo "Suite ${name} failing: ${passingCount} tests passed, ${passingScreenshotCount} screenshot comparisons passed, ${failingCount} tests failed, ${failingScreenshotCount} screenshot comparisons failed"
           exit 1
