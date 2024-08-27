@@ -45,4 +45,7 @@ Test the action (from the root directory of this repo)
 act -j ghost-inspector-run -s API_KEY=[your-ghost-inspector-api-key] -s SUITE_ID=[a-ghost-inspector-suite-id]
 ```
 
+Depending on the architecture of your local machine, you may need to pass
+`--container-architecture linux/amd64` as an argument to `act`.
+
 If the test suite passes, the action should exit with a success code, otherwise it will exit with a failure code (including if the test suite does not exist).
